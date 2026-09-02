@@ -1,0 +1,28 @@
+services:
+  backend:
+    environment:
+      SPRING_JPA_SHOW_SQL: "true"
+
+    develop:
+      watch:
+        - action: rebuild
+          path: ./backend/src
+
+        - action: rebuild
+          path: ./backend/pom.xml
+
+  frontend:
+    develop:
+      watch:
+        - action: rebuild
+          path: ./frontend/src
+
+        - action: rebuild
+          path: ./frontend/package.json
+
+  gateway:
+    develop:
+      watch:
+        - action: sync+restart
+          path: ./nginx/default.conf
+          target: /etc/nginx/conf.d/default.conf

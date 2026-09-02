@@ -1,0 +1,39 @@
+spring:
+  application:
+    name: task-manager-backend
+
+  datasource:
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${MYSQL_DATABASE}
+    username: ${MYSQL_USER}
+    password: ${MYSQL_PASSWORD}
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+
+  cache:
+    type: redis
+    redis:
+      time-to-live: 60000
+
+
+
+server:
+  port: 8080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+  health:
+    redis:
+      enabled: true
