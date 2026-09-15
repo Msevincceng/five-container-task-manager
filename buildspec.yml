@@ -1,0 +1,26 @@
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+      - echo "Amazon ECR'a giriş yapılıyor..."
+      - aws --version
+      - aws ecr get-login-password --region "$AWS_DEFAULT_REGION" | docker login --username AWS --password-stdin "740122273477.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com"
+      - COMMIT_HASH=$(echo "$CODEBUILD_RESOLVED_SOURCE_VERSION" | cut -c 1-7)
+      - IMAGE_TAG=${COMMIT_HASH:-build-$CODEBUILD_BUILD_NUMBER}
+      - echo "Image etiketi $IMAGE_TAG"
+
+  build:
+    commands:
+      - echo "Backend image oluşturuluyor..."
+      - docker build --tag "$BACKEND_REPOSITORY_URI:$IMAGE_TAG" ./backend
+      - echo "Frontend image oluşturuluyor..."
+      - docker build --build-arg VITE_API_URL=/api/tasks --tag "$FRONTEND_REPOSITORY_URI:$IMAGE_TAG" ./frontend
+
+  post_build:
+    commands:
+      - echo "Backend image ECR'a gönderiliyor..."
+      - docker push "$BACKEND_REPOSITORY_URI:$IMAGE_TAG"
+      - echo "Frontend image ECR'a gönderiliyor..."
+      - docker push "$FRONTEND_REPOSITORY_URI:$IMAGE_TAG"
+      - echo "Image gönderimi tamamlandı."
